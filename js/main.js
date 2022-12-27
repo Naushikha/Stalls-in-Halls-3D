@@ -13,9 +13,18 @@ var hallData = {
   hallLength: 5,
   hallWidth: 5,
   stalls: [
-    { x: 0, y: 0, rot: 60, id: "A1", availability: 0 },
-    { x: 2, y: 2, rot: 0, id: "A2", availability: 1 },
-    { x: 2, y: 1, rot: 0, id: "A3", availability: 2 },
+    { x: 0, y: 0, rot: 60, id: "A1", availability: "available" },
+    { x: 2, y: 2, rot: 180, id: "A2", availability: "available" },
+    { x: 2, y: 1, rot: 180, id: "A3", availability: "pending" },
+    { x: 2, y: 0, rot: 180, id: "A4", availability: "available" },
+    {
+      x: 2,
+      y: -1,
+      rot: 180,
+      id: "A5",
+      availability: "allocated",
+      allocatedTo: "Some Guy",
+    },
   ],
 };
 
@@ -42,9 +51,15 @@ var clickBoxes = [];
 var stallOBJs = [];
 var hoverStallID = "";
 
-const addOnClickBox = (x = 0, y = 0, rot = 0, id = "", availability = 0) => {
+const addOnClickBox = (
+  x = 0,
+  y = 0,
+  rot = 0,
+  id = "",
+  availability = "available"
+) => {
   let availColor;
-  if (availability == 0) availColor = 0x00ff00;
+  if (availability == "available") availColor = 0x00ff00;
   else availColor = 0xff0000;
   const boxGeom = new THREE.BoxGeometry(1, 0.65, 1);
   const boxMat = new THREE.MeshStandardMaterial({
@@ -110,8 +125,9 @@ const testMouseInteraction = () => {
       clickBox.material.opacity = 0.1;
     }
     rayResult[0].object.material.opacity = 0.5;
-    if (rayResult[0].object.userData.availability == 0)
+    if (rayResult[0].object.userData.availability == "available")
       hoverStallID = rayResult[0].object.userData.stallID;
+    else hoverStallID = "";
   } else {
     hoverStallID = "";
     for (let clickBox of clickBoxes) {
