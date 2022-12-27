@@ -25,12 +25,15 @@ var onStallClick = (stallID) => {
 
 const updateContainerID = (inContainerID) => {
   containerID = inContainerID;
+  console.log(`SiH3D: Container ID updated: ${stallID}`);
 };
 const updateAssetPath = (inAssetPath) => {
   assetPath = inAssetPath;
+  console.log(`SiH3D: Asset path updated: ${stallID}`);
 };
 const updateOnStallClick = (inOnStallClick) => {
   onStallClick = inOnStallClick;
+  console.log(`SiH3D: OnStallClick updated: ${stallID}`);
 };
 
 // Common variables
@@ -66,7 +69,6 @@ const loadStallModel = (x = 0, y = 0, rot = 0) => {
   var objLoader = new OBJLoader();
   mtlLoader.setPath(assetPath);
   objLoader.setPath(assetPath);
-  console.log(assetPath);
   mtlLoader.load("stall.mtl", (materials) => {
     materials.preload();
     objLoader.setMaterials(materials);
@@ -85,7 +87,6 @@ const setupStalls = () => {
     loadStallModel(stall.x, stall.y, stall.rot);
     addOnClickBox(stall.x, stall.y, stall.rot, stall.id, stall.availability);
   }
-  onStallClick("testing this");
 };
 
 const onMouseMove = (event) => {
@@ -120,6 +121,7 @@ const testMouseInteraction = () => {
 };
 
 const init = (inHallData = hallData) => {
+  console.log(`SiH3D: Initiating...`);
   hallData = inHallData;
 
   // Select container
@@ -175,7 +177,7 @@ const init = (inHallData = hallData) => {
   floor.receiveShadow = true;
   scene.add(floor);
 
-  setupStalls();
+  update(hallData);
 
   const renderLoop = () => {
     requestAnimationFrame(renderLoop);
@@ -205,9 +207,17 @@ const init = (inHallData = hallData) => {
 };
 
 const update = (inHallData = hallData) => {
+  console.log(`SiH3D: Updating...`);
   hallData = inHallData;
-
-  console.log(hallStuff);
+  let tmpClickBoxes = clickBoxes;
+  clickBoxes = [];
+  for (let clickBox of tmpClickBoxes) {
+    scene.remove(clickBox);
+  }
+  for (let stallOBJ of stallOBJs) {
+    scene.remove(stallOBJ);
+  }
+  setupStalls();
 };
 
 const SiH3D = {
