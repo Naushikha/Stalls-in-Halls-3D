@@ -14,12 +14,13 @@ var hallData = {
   hallWidth: 5,
   stalls: [
     { x: 0, y: 0, rot: 60, id: "A1", availability: 0 },
-    { x: 2, y: 2, rot: 0, id: "A2", availability: 0 },
+    { x: 2, y: 2, rot: 0, id: "A2", availability: 1 },
+    { x: 2, y: 1, rot: 0, id: "A3", availability: 2 },
   ],
 };
 
-var onStallClick = (stall) => {
-  console.log("SiH3D: Clicked on stall");
+var onStallClick = (stallID) => {
+  console.log(`SiH3D: Clicked on stall id: ${stallID}`);
 };
 
 const updateContainerID = (inContainerID) => {
@@ -33,15 +34,20 @@ const updateOnStallClick = (inOnStallClick) => {
 };
 
 // Common variables
-var scene;
-var mouse = new THREE.Vector2();
+var scene, camera, renderer, mouse, raycaster;
+var clickBoxes = [];
+var stallOBJs = [];
+var hoverStallID = "";
 
-const addOnClickBox = (x = 0, y = 0, rot = 0) => {
+const addOnClickBox = (x = 0, y = 0, rot = 0, id = "", availability = 0) => {
+  let availColor;
+  if (availability == 0) availColor = 0x00ff00;
+  else availColor = 0xff0000;
   const boxGeom = new THREE.BoxGeometry(1, 0.65, 1);
   const boxMat = new THREE.MeshStandardMaterial({
-    color: 0xff0000,
+    color: availColor,
     side: THREE.DoubleSide,
-    opacity: 0.5,
+    opacity: 0.1,
     transparent: true,
   });
   const box = new THREE.Mesh(boxGeom, boxMat);
@@ -49,7 +55,10 @@ const addOnClickBox = (x = 0, y = 0, rot = 0) => {
   box.position.y = 0.325;
   box.position.z = y;
   box.rotateY(degToRad(rot));
+  box.userData.stallID = id;
+  box.userData.availability = availability;
   scene.add(box);
+  clickBoxes.push(box);
 };
 
 const loadStallModel = (x = 0, y = 0, rot = 0) => {
@@ -66,6 +75,7 @@ const loadStallModel = (x = 0, y = 0, rot = 0) => {
       object.position.z = y;
       object.rotateY(degToRad(rot));
       scene.add(object);
+      stallOBJs.push(object);
     });
   });
 };
@@ -73,17 +83,41 @@ const loadStallModel = (x = 0, y = 0, rot = 0) => {
 const setupStalls = () => {
   for (let stall of hallData.stalls) {
     loadStallModel(stall.x, stall.y, stall.rot);
-    addOnClickBox(stall.x, stall.y, stall.rot);
+    addOnClickBox(stall.x, stall.y, stall.rot, stall.id, stall.availability);
   }
   onStallClick("testing this");
 };
 
 const onMouseMove = (event) => {
-  this.mouse.x = (event.clientX / container.offsetWidth) * 2 - 1;
-  this.mouse.y = -(event.clientY / container.offsetHeight) * 2 + 1;
+  // https://stackoverflow.com/a/40106019
+  var rect = renderer.domElement.getBoundingClientRect();
+  mouse.x = ((event.clientX - rect.left) / (rect.right - rect.left)) * 2 - 1;
+  mouse.y = -((event.clientY - rect.top) / (rect.bottom - rect.top)) * 2 + 1;
 };
 
-// window.addEventListener("mousemove", this.onMouseMove.bind(this), false);
+const onMouseDown = () => {
+  if (hoverStallID == "") return;
+  onStallClick(hoverStallID);
+};
+
+const testMouseInteraction = () => {
+  raycaster.setFromCamera(mouse, camera);
+  var rayResult = [];
+  const boxIntersects = raycaster.intersectObjects(clickBoxes, true, rayResult);
+  if (boxIntersects.length) {
+    for (let clickBox of clickBoxes) {
+      clickBox.material.opacity = 0.1;
+    }
+    rayResult[0].object.material.opacity = 0.5;
+    if (rayResult[0].object.userData.availability == 0)
+      hoverStallID = rayResult[0].object.userData.stallID;
+  } else {
+    hoverStallID = "";
+    for (let clickBox of clickBoxes) {
+      clickBox.material.opacity = 0.1;
+    }
+  }
+};
 
 const init = (inHallData = hallData) => {
   hallData = inHallData;
@@ -97,7 +131,7 @@ const init = (inHallData = hallData) => {
   container.appendChild(stats.domElement);
 
   // Setup renderer
-  const renderer = new THREE.WebGLRenderer({
+  renderer = new THREE.WebGLRenderer({
     antialias: true,
   });
   renderer.setSize(container.offsetWidth, container.offsetHeight);
@@ -112,7 +146,7 @@ const init = (inHallData = hallData) => {
   scene.add(axesHelper);
 
   // Setup camera
-  const camera = new THREE.PerspectiveCamera(
+  camera = new THREE.PerspectiveCamera(
     75,
     container.offsetWidth / container.offsetHeight,
     0.1,
@@ -146,6 +180,7 @@ const init = (inHallData = hallData) => {
   const renderLoop = () => {
     requestAnimationFrame(renderLoop);
     controls.update();
+    testMouseInteraction();
     stats.update();
     renderer.render(scene, camera);
   };
@@ -158,6 +193,12 @@ const init = (inHallData = hallData) => {
   controls.maxDistance = Math.max(hallData.hallLength, hallData.hallWidth);
   controls.enablePan = false;
   controls.maxPolarAngle = Math.PI / 2.1;
+
+  // Setup interaction
+  raycaster = new THREE.Raycaster();
+  mouse = new THREE.Vector2();
+  container.addEventListener("mousemove", onMouseMove, false);
+  container.addEventListener("mousedown", onMouseDown);
 
   // Run render loop
   renderLoop();
