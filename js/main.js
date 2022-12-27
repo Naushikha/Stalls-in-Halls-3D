@@ -4,6 +4,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { MTLLoader } from "three/examples/jsm/loaders/MTLLoader.js";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
 import { degToRad } from "three/src/math/MathUtils";
+import {
+  CSS2DRenderer,
+  CSS2DObject,
+} from "three/examples/jsm/renderers/CSS2DRenderer.js";
 
 var containerID = "sih3d-container";
 var assetPath = "./assets/"; // Trailing slash is important!
@@ -23,7 +27,7 @@ var hallData = {
       rot: 180,
       id: "A5",
       availability: "allocated",
-      allocatedTo: "Some Guy",
+      allocatedTo: "Some Guy Who is Too Damn Rich",
     },
   ],
 };
@@ -49,17 +53,12 @@ const updateOnStallClick = (inOnStallClick) => {
 var scene, camera, renderer, mouse, raycaster;
 var clickBoxes = [];
 var stallOBJs = [];
+var labelList = [];
 var hoverStallID = "";
 
-const addOnClickBox = (
-  x = 0,
-  y = 0,
-  rot = 0,
-  id = "",
-  availability = "available"
-) => {
+const addOnClickBox = (x = 0, y = 0, rot = 0, stall) => {
   let availColor;
-  if (availability == "available") availColor = 0x00ff00;
+  if (stall.availability == "available") availColor = 0x00ff00;
   else availColor = 0xff0000;
   const boxGeom = new THREE.BoxGeometry(1, 0.65, 1);
   const boxMat = new THREE.MeshStandardMaterial({
@@ -73,8 +72,15 @@ const addOnClickBox = (
   box.position.y = 0.325;
   box.position.z = y;
   box.rotateY(degToRad(rot));
-  box.userData.stallID = id;
-  box.userData.availability = availability;
+  box.userData.stallID = stall.id;
+  box.userData.availability = stall.availability;
+  addLabel(stall.id, box);
+  let occupiedText;
+  if (stall.availability == "allocated")
+    occupiedText = `Occupied: ${stall.allocatedTo}`;
+  else if (stall.availability == "pending") occupiedText = "Booked";
+  else occupiedText = "Available";
+  addOccupied(addLabel(occupiedText, box, -0.2), box);
   scene.add(box);
   clickBoxes.push(box);
 };
@@ -97,10 +103,27 @@ const loadStallModel = (x = 0, y = 0, rot = 0) => {
   });
 };
 
+const addLabel = (text = "Label", object, offset = 0.2) => {
+  const labelDiv = document.createElement("div");
+  labelDiv.innerText = text;
+  labelDiv.style =
+    "color: #fff; padding: 2px; background: rgba(0, 0, 0, 0.6); margin-top: -1em;";
+  const label = new CSS2DObject(labelDiv);
+  label.position.set(0, offset, 0);
+  object.add(label);
+  labelList.push(labelDiv);
+  return label;
+};
+
+const addOccupied = (labelObj, object) => {
+  object.userData.labelOccupied = labelObj;
+  labelObj.visible = false;
+};
+
 const setupStalls = () => {
   for (let stall of hallData.stalls) {
     loadStallModel(stall.x, stall.y, stall.rot);
-    addOnClickBox(stall.x, stall.y, stall.rot, stall.id, stall.availability);
+    addOnClickBox(stall.x, stall.y, stall.rot, stall);
   }
 };
 
@@ -123,11 +146,13 @@ const testMouseInteraction = () => {
   if (boxIntersects.length) {
     for (let clickBox of clickBoxes) {
       clickBox.material.opacity = 0.1;
+      clickBox.userData.labelOccupied.visible = false;
     }
     rayResult[0].object.material.opacity = 0.5;
     if (rayResult[0].object.userData.availability == "available")
       hoverStallID = rayResult[0].object.userData.stallID;
     else hoverStallID = "";
+    rayResult[0].object.userData.labelOccupied.visible = true;
   } else {
     hoverStallID = "";
     for (let clickBox of clickBoxes) {
@@ -153,8 +178,14 @@ const init = (inHallData = hallData) => {
     antialias: true,
   });
   renderer.setSize(container.offsetWidth, container.offsetHeight);
-
   container.appendChild(renderer.domElement);
+
+  // Setup label renderer
+  const labelRenderer = new CSS2DRenderer();
+  labelRenderer.setSize(container.offsetWidth, container.offsetHeight);
+  labelRenderer.domElement.style.position = "absolute";
+  labelRenderer.domElement.style.top = "0px";
+  container.appendChild(labelRenderer.domElement);
 
   // Setup scene
   scene = new THREE.Scene();
@@ -201,10 +232,11 @@ const init = (inHallData = hallData) => {
     testMouseInteraction();
     stats.update();
     renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
   };
 
   // Setup controls
-  const controls = new OrbitControls(camera, renderer.domElement);
+  const controls = new OrbitControls(camera, labelRenderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.minDistance = 2;
@@ -232,6 +264,9 @@ const update = (inHallData = hallData) => {
   }
   for (let stallOBJ of stallOBJs) {
     scene.remove(stallOBJ);
+  }
+  for (let label of labelList) {
+    label.remove();
   }
   setupStalls();
 };
