@@ -51,15 +51,15 @@ var onStallClick = (stallID) => {
 
 const updateContainerID = (inContainerID) => {
   containerID = inContainerID;
-  DEBUG && console.log(`SiH3D: Container ID updated: ${stallID}`);
+  DEBUG && console.log(`SiH3D: Container ID updated: ${containerID}`);
 };
 const updateAssetPath = (inAssetPath) => {
   assetPath = inAssetPath;
-  DEBUG && console.log(`SiH3D: Asset path updated: ${stallID}`);
+  DEBUG && console.log(`SiH3D: Asset path updated: ${assetPath}`);
 };
 const updateOnStallClick = (inOnStallClick) => {
   onStallClick = inOnStallClick;
-  DEBUG && console.log(`SiH3D: OnStallClick updated: ${stallID}`);
+  DEBUG && console.log(`SiH3D: OnStallClick updated: ${onStallClick}`);
 };
 
 // Common variables
@@ -95,7 +95,7 @@ const addOnClickBox = (x = 0, y = 0, rot = 0, stall) => {
     occupiedText = `Occupied: ${stall.allocatedTo}`;
   else if (stall.availability == "pending") occupiedText = "Booked";
   else occupiedText = "Available";
-  addOccupied(addLabel(occupiedText, box, -0.2), box);
+  addOccupied(addLabel(occupiedText, box, 0.6), box);
   scene.add(box);
   clickBoxes.push(box);
 };
@@ -146,7 +146,7 @@ const addEntrance = (x1 = 0, y1 = 0, x2 = 2, y2 = 0) => {
   addWall(x1, y1, x2, y2, 0.7, 0.3);
 };
 
-const addLabel = (text = "Label", object, offset = 0.2) => {
+const addLabel = (text = "Label", object, offset = 0) => {
   const labelDiv = document.createElement("div");
   labelDiv.innerText = text;
   labelDiv.style =
@@ -229,7 +229,8 @@ const init = (inHallData = hallData) => {
   const labelRenderer = new CSS2DRenderer();
   labelRenderer.setSize(container.offsetWidth, container.offsetHeight);
   labelRenderer.domElement.style.position = "absolute";
-  labelRenderer.domElement.style.top = "0px";
+  const containerTop = renderer.domElement.getBoundingClientRect().top;
+  labelRenderer.domElement.style.top = `${containerTop}px`;
   container.appendChild(labelRenderer.domElement);
 
   // Setup scene
