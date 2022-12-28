@@ -16,8 +16,16 @@ var container;
 var hallData = {
   hallLength: 5,
   hallWidth: 5,
+  walls: [
+    [0, 2.5, 2.5, 2.5],
+    [-0.5, 2.5, -2.5, 2.5],
+    [2.5, 2.5, 2.5, -2.5],
+    [2.5, -2.5, -2.5, -2.5],
+    [-2.5, -2.5, -2.5, 2.5],
+  ],
+  entrances: [[-0.5, 2.5, 0, 2.5]],
   stalls: [
-    { x: 0, y: 0, rot: 60, id: "A1", availability: "available" },
+    { x: 0, y: 0, rot: -60, id: "A1", availability: "available" },
     { x: 2, y: 2, rot: 180, id: "A2", availability: "available" },
     { x: 2, y: 1, rot: 180, id: "A3", availability: "pending" },
     { x: 2, y: 0, rot: 180, id: "A4", availability: "available" },
@@ -53,6 +61,7 @@ const updateOnStallClick = (inOnStallClick) => {
 var scene, camera, renderer, mouse, raycaster;
 var clickBoxes = [];
 var stallOBJs = [];
+var walls = [];
 var labelList = [];
 var hoverStallID = "";
 
@@ -103,6 +112,34 @@ const loadStallModel = (x = 0, y = 0, rot = 0) => {
   });
 };
 
+const addWall = (
+  x1 = 0,
+  y1 = 0,
+  x2 = 2,
+  y2 = 0,
+  z = 0,
+  height = 0.85,
+  thickness = 0.05
+) => {
+  const fromVec = new THREE.Vector3(x1, 0, y1);
+  const toVec = new THREE.Vector3(x2, 0, y2);
+  const length = fromVec.distanceTo(toVec);
+  const direction = toVec.clone().sub(fromVec).normalize();
+  const newOrigin = fromVec.clone().add(direction.multiplyScalar(length / 2));
+  const wallGeom = new THREE.BoxGeometry(thickness, height, length);
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const wall = new THREE.Mesh(wallGeom, wallMat);
+  wall.position.copy(newOrigin);
+  wall.lookAt(toVec);
+  wall.position.y = z ? z : height / 2;
+  scene.add(wall);
+  walls.push(wall);
+};
+
+const addEntrance = (x1 = 0, y1 = 0, x2 = 2, y2 = 0) => {
+  addWall(x1, y1, x2, y2, 0.7, 0.3);
+};
+
 const addLabel = (text = "Label", object, offset = 0.2) => {
   const labelDiv = document.createElement("div");
   labelDiv.innerText = text;
@@ -121,6 +158,8 @@ const addOccupied = (labelObj, object) => {
 };
 
 const setupStalls = () => {
+  for (let wall of hallData.walls) addWall(...wall);
+  for (let entrace of hallData.entrances) addEntrance(...entrace);
   for (let stall of hallData.stalls) {
     loadStallModel(stall.x, stall.y, stall.rot);
     addOnClickBox(stall.x, stall.y, stall.rot, stall);
@@ -264,6 +303,9 @@ const update = (inHallData = hallData) => {
   }
   for (let stallOBJ of stallOBJs) {
     scene.remove(stallOBJ);
+  }
+  for (let wall of walls) {
+    scene.remove(wall);
   }
   for (let label of labelList) {
     label.remove();
