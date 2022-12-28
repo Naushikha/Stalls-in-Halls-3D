@@ -241,6 +241,8 @@ const init = (inHallData = hallData) => {
   // For debug
   const axesHelper = new THREE.AxesHelper(5);
   DEBUG && scene.add(axesHelper);
+  const gridHelper = new THREE.GridHelper(10, 10);
+  DEBUG && scene.add(gridHelper);
 
   // Setup camera
   camera = new THREE.PerspectiveCamera(
