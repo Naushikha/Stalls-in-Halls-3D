@@ -9,6 +9,7 @@ import {
   CSS2DObject,
 } from "three/examples/jsm/renderers/CSS2DRenderer.js";
 
+var DEBUG = false;
 var containerID = "sih3d-container";
 var assetPath = "./assets/"; // Trailing slash is important!
 var container;
@@ -40,21 +41,25 @@ var hallData = {
   ],
 };
 
+const debugMode = (inTF) => {
+  DEBUG = inTF;
+};
+
 var onStallClick = (stallID) => {
-  console.log(`SiH3D: Clicked on stall id: ${stallID}`);
+  DEBUG && console.log(`SiH3D: Clicked on stall id: ${stallID}`);
 };
 
 const updateContainerID = (inContainerID) => {
   containerID = inContainerID;
-  console.log(`SiH3D: Container ID updated: ${stallID}`);
+  DEBUG && console.log(`SiH3D: Container ID updated: ${stallID}`);
 };
 const updateAssetPath = (inAssetPath) => {
   assetPath = inAssetPath;
-  console.log(`SiH3D: Asset path updated: ${stallID}`);
+  DEBUG && console.log(`SiH3D: Asset path updated: ${stallID}`);
 };
 const updateOnStallClick = (inOnStallClick) => {
   onStallClick = inOnStallClick;
-  console.log(`SiH3D: OnStallClick updated: ${stallID}`);
+  DEBUG && console.log(`SiH3D: OnStallClick updated: ${stallID}`);
 };
 
 // Common variables
@@ -201,7 +206,7 @@ const testMouseInteraction = () => {
 };
 
 const init = (inHallData = hallData) => {
-  console.log(`SiH3D: Initiating...`);
+  DEBUG && console.log(`SiH3D: Initiating...`);
   hallData = inHallData;
 
   // Select container
@@ -210,7 +215,7 @@ const init = (inHallData = hallData) => {
   // Show FPS stats
   const stats = new Stats();
   stats.domElement.style.position = "relative";
-  container.appendChild(stats.domElement);
+  DEBUG && container.appendChild(stats.domElement);
 
   // Setup renderer
   renderer = new THREE.WebGLRenderer({
@@ -231,7 +236,7 @@ const init = (inHallData = hallData) => {
   scene.background = new THREE.Color(0xcccccc);
   // For debug
   const axesHelper = new THREE.AxesHelper(5);
-  scene.add(axesHelper);
+  DEBUG && scene.add(axesHelper);
 
   // Setup camera
   camera = new THREE.PerspectiveCamera(
@@ -269,7 +274,7 @@ const init = (inHallData = hallData) => {
     requestAnimationFrame(renderLoop);
     controls.update();
     testMouseInteraction();
-    stats.update();
+    DEBUG && stats.update();
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera);
   };
@@ -294,7 +299,7 @@ const init = (inHallData = hallData) => {
 };
 
 const update = (inHallData = hallData) => {
-  console.log(`SiH3D: Updating...`);
+  DEBUG && console.log(`SiH3D: Updating...`);
   hallData = inHallData;
   let tmpClickBoxes = clickBoxes;
   clickBoxes = [];
@@ -314,6 +319,7 @@ const update = (inHallData = hallData) => {
 };
 
 const SiH3D = {
+  debugMode: debugMode,
   updateContainerID: updateContainerID,
   updateAssetPath: updateAssetPath,
   updateOnStallClick: updateOnStallClick,
