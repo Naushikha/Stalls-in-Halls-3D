@@ -73,12 +73,13 @@ var hoverStallID = "";
 const addOnClickBox = (x = 0, y = 0, rot = 0, stall) => {
   let availColor;
   if (stall.availability == "available") availColor = 0x00ff00;
+  else if (stall.availability == "pending") availColor = 0xffff00;
   else availColor = 0xff0000;
   const boxGeom = new THREE.BoxGeometry(1, 0.65, 1);
   const boxMat = new THREE.MeshStandardMaterial({
     color: availColor,
     side: THREE.DoubleSide,
-    opacity: 0.1,
+    opacity: 0.25,
     transparent: true,
   });
   const box = new THREE.Mesh(boxGeom, boxMat);
@@ -189,7 +190,7 @@ const testMouseInteraction = () => {
   const boxIntersects = raycaster.intersectObjects(clickBoxes, true, rayResult);
   if (boxIntersects.length) {
     for (let clickBox of clickBoxes) {
-      clickBox.material.opacity = 0.1;
+      clickBox.material.opacity = 0.25;
       clickBox.userData.labelOccupied.visible = false;
     }
     rayResult[0].object.material.opacity = 0.5;
@@ -200,7 +201,7 @@ const testMouseInteraction = () => {
   } else {
     hoverStallID = "";
     for (let clickBox of clickBoxes) {
-      clickBox.material.opacity = 0.1;
+      clickBox.material.opacity = 0.25;
     }
   }
 };
@@ -260,7 +261,7 @@ const init = (inHallData = hallData) => {
     hallData.hallLength
   );
   const floorMat = new THREE.MeshStandardMaterial({
-    color: 0xaaaaaa,
+    color: 0xcccccc,
     side: THREE.DoubleSide,
   });
   const floor = new THREE.Mesh(floorGeom, floorMat);
