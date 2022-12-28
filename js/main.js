@@ -216,7 +216,8 @@ const init = (inHallData = hallData) => {
   // Show FPS stats
   const stats = new Stats();
   stats.domElement.style.position = "relative";
-  DEBUG && container.appendChild(stats.domElement);
+  DEBUG &&
+    container.parentNode.insertBefore(stats.domElement, container.nextSibling); // https://stackoverflow.com/a/32135318
 
   // Setup renderer
   renderer = new THREE.WebGLRenderer({
@@ -228,9 +229,10 @@ const init = (inHallData = hallData) => {
   // Setup label renderer
   const labelRenderer = new CSS2DRenderer();
   labelRenderer.setSize(container.offsetWidth, container.offsetHeight);
+  // https://stackoverflow.com/a/10487329
+  container.style.position = "relative";
   labelRenderer.domElement.style.position = "absolute";
-  const containerTop = renderer.domElement.getBoundingClientRect().top;
-  labelRenderer.domElement.style.top = `${containerTop}px`;
+  labelRenderer.domElement.style.top = `0px`;
   container.appendChild(labelRenderer.domElement);
 
   // Setup scene
