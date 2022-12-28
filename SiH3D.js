@@ -13950,11 +13950,11 @@ const ep = (r) => {
 var ut, Hn, ui, Qi, nr, jn = [], bo = [], So = [], wo = [], pi = "";
 const ip = (r = 0, e = 0, t = 0, n) => {
   let i;
-  n.availability == "available" ? i = 65280 : i = 16711680;
+  n.availability == "available" ? i = 65280 : n.availability == "pending" ? i = 16776960 : i = 16711680;
   const s = new wn(1, 0.65, 1), o = new cr({
     color: i,
     side: vi,
-    opacity: 0.1,
+    opacity: 0.25,
     transparent: !0
   }), a = new Mt(s, o);
   a.position.x = r, a.position.y = 0.325, a.position.z = e, a.rotateY(Mo(t)), a.userData.stallID = n.id, a.userData.availability = n.availability, qa(n.id, a);
@@ -13996,12 +13996,12 @@ const ip = (r = 0, e = 0, t = 0, n) => {
   var r = [];
   if (nr.intersectObjects(jn, !0, r).length) {
     for (let t of jn)
-      t.material.opacity = 0.1, t.userData.labelOccupied.visible = !1;
+      t.material.opacity = 0.25, t.userData.labelOccupied.visible = !1;
     r[0].object.material.opacity = 0.5, r[0].object.userData.availability == "available" ? pi = r[0].object.userData.stallID : pi = "", r[0].object.userData.labelOccupied.visible = !0;
   } else {
     pi = "";
     for (let t of jn)
-      t.material.opacity = 0.1;
+      t.material.opacity = 0.25;
   }
 }, up = (r = Et) => {
   zt && console.log("SiH3D: Initiating..."), Et = r, Tt = document.getElementById(yo);
@@ -14026,7 +14026,7 @@ const ip = (r = 0, e = 0, t = 0, n) => {
     Et.hallWidth,
     Et.hallLength
   ), a = new cr({
-    color: 11184810,
+    color: 13421772,
     side: vi
   }), c = new Mt(o, a);
   c.rotateX(Math.PI / 2), c.receiveShadow = !0, ut.add(c), Eo(Et);
