@@ -67,6 +67,7 @@ var scene, camera, renderer, labelRenderer, mouse, raycaster;
 var clickBoxes = [];
 var stallOBJs = [];
 var walls = [];
+var floor = null;
 var labelList = [];
 var hoverStallID = "";
 var animFrameID = "";
@@ -117,6 +118,22 @@ const loadStallModel = (x = 0, y = 0, rot = 0) => {
       stallOBJs.push(object);
     });
   });
+};
+
+const addFloor = () => {
+  // Add floor
+  const floorGeom = new THREE.PlaneGeometry(
+    hallData.hallWidth,
+    hallData.hallLength
+  );
+  const floorMat = new THREE.MeshStandardMaterial({
+    color: 0xcccccc,
+    side: THREE.DoubleSide,
+  });
+  floor = new THREE.Mesh(floorGeom, floorMat);
+  floor.rotateX(Math.PI / 2);
+  floor.receiveShadow = true;
+  scene.add(floor);
 };
 
 const addWall = (
@@ -267,20 +284,6 @@ const init = (inHallData = hallData) => {
   dirLight1.position.set(2, 3, 4);
   scene.add(dirLight1);
 
-  // Add floor
-  const floorGeom = new THREE.PlaneGeometry(
-    hallData.hallWidth,
-    hallData.hallLength
-  );
-  const floorMat = new THREE.MeshStandardMaterial({
-    color: 0xcccccc,
-    side: THREE.DoubleSide,
-  });
-  const floor = new THREE.Mesh(floorGeom, floorMat);
-  floor.rotateX(Math.PI / 2);
-  floor.receiveShadow = true;
-  scene.add(floor);
-
   update(hallData);
 
   const renderLoop = () => {
@@ -325,10 +328,24 @@ const update = (inHallData = hallData) => {
   for (let wall of walls) {
     scene.remove(wall);
   }
+  scene.remove(floor);
   for (let label of labelList) {
     label.remove();
   }
   setupStalls();
+  addFloor();
+  // Reset camera
+  // Assumes a main entrance[0] exists in data
+  const vecEntrance = new THREE.Vector2(
+    hallData.entrances[0][0],
+    hallData.entrances[0][1]
+  );
+  const vecCam = vecEntrance
+    .clone()
+    .add(vecEntrance.clone().normalize().multiplyScalar(1.4));
+  camera.position.x = vecCam.x;
+  camera.position.z = vecCam.y;
+  camera.position.y = 2;
 };
 
 const destroy = () => {
