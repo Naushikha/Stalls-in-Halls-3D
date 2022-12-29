@@ -195,12 +195,17 @@ const testMouseInteraction = () => {
       clickBox.userData.labelOccupied.visible = false;
     }
     rayResult[0].object.material.opacity = 0.5;
-    if (rayResult[0].object.userData.availability == "available")
+    if (rayResult[0].object.userData.availability == "available") {
       hoverStallID = rayResult[0].object.userData.stallID;
-    else hoverStallID = "";
+      container.style.cursor = "pointer";
+    } else {
+      hoverStallID = "";
+      container.style.cursor = "default";
+    }
     rayResult[0].object.userData.labelOccupied.visible = true;
   } else {
     hoverStallID = "";
+    container.style.cursor = "default";
     for (let clickBox of clickBoxes) {
       clickBox.material.opacity = 0.25;
     }
@@ -252,7 +257,8 @@ const init = (inHallData = hallData) => {
     0.1,
     1000
   );
-  camera.position.z = 5;
+  camera.position.z = hallData.hallLength + 2;
+  camera.position.y = 5;
 
   // Setup lighting
   const light = new THREE.AmbientLight(0x404040); // soft white light
@@ -291,7 +297,7 @@ const init = (inHallData = hallData) => {
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
   controls.minDistance = 2;
-  controls.maxDistance = Math.max(hallData.hallLength, hallData.hallWidth);
+  controls.maxDistance = Math.max(hallData.hallLength, hallData.hallWidth) + 1;
   controls.enablePan = false;
   controls.maxPolarAngle = Math.PI / 2.1;
 
