@@ -71,6 +71,7 @@ var floor = null;
 var labelList = [];
 var hoverStallID = "";
 var animFrameID = "";
+var canvasText = null;
 
 const addOnClickBox = (x = 0, y = 0, rot = 0, stall) => {
   let availColor;
@@ -356,11 +357,28 @@ const destroy = () => {
   labelRenderer = null;
 };
 
+const displayCanvasText = (
+  inDisplayState = false,
+  inText = "Your text",
+  inCSS = ""
+) => {
+  if (inDisplayState) {
+    const tmpElem = document.createElement("p");
+    tmpElem.innerHTML = inText;
+    tmpElem.style = `position: absolute; ${inCSS}`;
+    container.appendChild(tmpElem);
+    canvasText = tmpElem;
+  } else {
+    if (canvasText) canvasText.remove();
+  }
+};
+
 const SiH3D = {
   debugMode: debugMode,
   updateContainerID: updateContainerID,
   updateAssetPath: updateAssetPath,
   updateOnStallClick: updateOnStallClick,
+  displayCanvasText: displayCanvasText,
   init: init,
   update: update,
   destroy: destroy,
