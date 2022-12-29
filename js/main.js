@@ -12,7 +12,7 @@ import {
 var DEBUG = false;
 var containerID = "sih3d-container";
 var assetPath = "./assets/"; // Trailing slash is important!
-var container;
+var container = document.getElementById(containerID);
 
 var hallData = {
   hallLength: 5,
