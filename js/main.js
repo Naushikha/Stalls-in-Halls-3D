@@ -63,12 +63,13 @@ const updateOnStallClick = (inOnStallClick) => {
 };
 
 // Common variables
-var scene, camera, renderer, mouse, raycaster;
+var scene, camera, renderer, labelRenderer, mouse, raycaster;
 var clickBoxes = [];
 var stallOBJs = [];
 var walls = [];
 var labelList = [];
 var hoverStallID = "";
+var animFrameID = "";
 
 const addOnClickBox = (x = 0, y = 0, rot = 0, stall) => {
   let availColor;
@@ -227,7 +228,7 @@ const init = (inHallData = hallData) => {
   container.appendChild(renderer.domElement);
 
   // Setup label renderer
-  const labelRenderer = new CSS2DRenderer();
+  labelRenderer = new CSS2DRenderer();
   labelRenderer.setSize(container.offsetWidth, container.offsetHeight);
   // https://stackoverflow.com/a/10487329
   container.style.position = "relative";
@@ -277,7 +278,7 @@ const init = (inHallData = hallData) => {
   update(hallData);
 
   const renderLoop = () => {
-    requestAnimationFrame(renderLoop);
+    animFrameID = requestAnimationFrame(renderLoop);
     controls.update();
     testMouseInteraction();
     DEBUG && stats.update();
@@ -324,6 +325,14 @@ const update = (inHallData = hallData) => {
   setupStalls();
 };
 
+const destroy = () => {
+  DEBUG && console.log(`SiH3D: Destroying...`);
+  cancelAnimationFrame(animFrameID);
+  renderer.dispose();
+  renderer = null;
+  labelRenderer = null;
+};
+
 const SiH3D = {
   debugMode: debugMode,
   updateContainerID: updateContainerID,
@@ -331,7 +340,7 @@ const SiH3D = {
   updateOnStallClick: updateOnStallClick,
   init: init,
   update: update,
-  onStallClick: onStallClick,
+  destroy: destroy,
 };
 
 export default SiH3D;
