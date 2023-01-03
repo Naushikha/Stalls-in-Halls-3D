@@ -14081,8 +14081,8 @@ const lp = (r = 0, e = 0, t = 0, n) => {
   } else
     $s && $s.remove();
 }, Mp = () => {
-  const r = document.createElement("p");
-  r.innerHTML = '<tt><a style="text-decoration: none; color: black;" href="https://github.com/Naushikha/Stalls-in-Halls-3D" target="_blank">SiH-3D</a><br><small><a style="text-decoration: none; color: #333333;" href="https://naushikha.com" target="_blank">by Naushikha</a></small></tt>', r.style = "position: absolute; bottom: 0; margin: 0; font-weight: bold; font-size: 0.8rem; border-radius: 0px 10px 0px 0px; padding: 2px 5px; background: linear-gradient(200deg, rgba(173,216,230,1) 0%, rgba(236,232,255,1) 100%);", Ye.appendChild(r);
+  const r = document.createElement("div");
+  r.innerHTML = '<tt><a style="text-decoration: none; color: black; margin:0" href="https://github.com/Naushikha/Stalls-in-Halls-3D" target="_blank">SiH-3D</a> <small><a style="text-decoration: none; color: #333333;" href="https://naushikha.com" target="_blank">by Naushikha</a></small></tt>', r.style = "position: absolute; bottom: 0; right: 0; margin: 0; font-weight: bold; font-size: 0.8rem; opacity: 0.8; padding: 5px", Ye.appendChild(r);
 }, yp = {
   debugMode: sp,
   updateContainerID: rp,
